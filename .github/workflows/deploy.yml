@@ -7,6 +7,10 @@ on:
 env:
   DOKKU_APP: wanderlisi
   APP_ALIAS: wanderlisi.chee.li
+  # Persistent storage holding the app's data/ directory (tracks, plans, ...).
+  STORAGE_NAME: wanderlisi-data
+  # Old application used to seed the storage on the first deploy.
+  OLD_DATA_URL: https://www.windmaster.ch/wanderlisi/data
 
 jobs:
   deploy:
@@ -23,6 +27,15 @@ jobs:
 
       - name: Create app
         run: .github/scripts/dokku.sh apps:create ${{ env.DOKKU_APP }} || true
+
+      - name: Create persistent data storage
+        run: .github/scripts/dokku.sh storage:create ${{ env.STORAGE_NAME }} --chown 1000 || true
+
+      - name: Mount data storage
+        run: .github/scripts/dokku.sh storage:mount ${{ env.DOKKU_APP }} ${{ env.STORAGE_NAME }} --container-dir /app/data || true
+
+      - name: Initialize data from the old application
+        run: .github/scripts/seed_storage.sh
 
       - name: Set domain alias
         run: .github/scripts/dokku.sh domains:set ${{ env.DOKKU_APP }} ${{ env.APP_ALIAS }}
