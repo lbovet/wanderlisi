@@ -1,0 +1,16 @@
+# Version control / CI
+.git
+.gitignore
+.github
+
+# Dependencies
+node_modules
+
+# Generated track data (mounted at runtime, not baked into the image)
+data
+
+# Local artifacts
+bin
+logs
+*.log
+npm-debug.log*
