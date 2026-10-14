@@ -54,3 +54,33 @@ not baked into the image; it is expected to be mounted at runtime.
 
 > The admin/API server and the track-processing pipeline are not part of this
 > image yet and will be added in later steps.
+
+## Track data
+
+The frontend reads the tracks from the `data/` directory mounted at the app
+root:
+
+```
+data/
+├── historic-hotels.json
+├── sac-huts-selected.json
+├── plans/                        # hike plans listed in the menu
+└── tracks/
+    └── <track name>/
+        ├── <track name>.gpx
+        ├── metadata.json
+        ├── notes.md
+        └── *.jpg
+```
+
+On the Dokku deployment this directory lives in the `wanderlisi-data` storage,
+mounted at `/app/data` (see
+[`.github/workflows/deploy.yml`](.github/workflows/deploy.yml)). The deploy
+workflow creates it with `dokku storage:create` and, on the first run only,
+seeds it from the old application
+(https://www.windmaster.ch/wanderlisi/) with
+[`.github/scripts/seed_storage.sh`](.github/scripts/seed_storage.sh).
+
+The static server also answers the directory listings the frontend expects
+(`data/tracks/`, `data/tracks/<track>/` and `data/plans/`) as JSON, replacing
+the `index.php` files the old Apache/PHP server used to publish them.
